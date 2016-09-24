@@ -1,0 +1,171 @@
+Concat
+Tokenize
+Sum
+Min
+Max
+Limit
+Store
+Distinct
+Flatten
+IsEmpty
+
+1. 
+db = LOAD '/home/acadgild/Assignment-session8/Session8Dataset.txt' using PigStorage(',') AS (name:chararray,sname:chararray,marks:int,tmarks:int,gender:chararray,age:int,degree:chararray);
+
+DUMP db;
+
+(Arti,Mehta,93,100,F,30,MCA)
+(Pooja,Jhaveri,92,100,F,28,MBA)
+(Sonika,Jain,85,100,F,33,CA)
+(Abhishek,Jain,90,100,M,31,B.Tech)
+(Viral,Mehta,99,100,M,30,M.Tech)
+(Vidhi,Mehta,75,100,F,30,MCA)
+(Snatosh,Gosh,88,100,M,28,MBA)
+(Ajay,Kaushik,65,100,M,33,CA)
+(Rahul,Chauhan,79,100,M,31,B.Tech)
+(Parul,Joshi,81,100,F,30,M.Tech)
+
+2.
+fullname = FOREACH db GENERATE CONCAT(name,CONCAT(' ',sname));
+
+DUMP fullname;
+
+(Arti Mehta)
+(Pooja Jhaveri)
+(Sonika Jain)
+(Abhishek Jain)
+(Viral Mehta)
+(Vidhi Mehta)
+(Snatosh Gosh)
+(Ajay Kaushik)
+(Rahul Chauhan)
+(Parul Joshi)
+
+3.
+strtokenize = FOREACH db GENERATE TOKENIZE(name);    
+
+DUMP strtokenize; 
+
+({(Arti)})
+({(Pooja)})
+({(Sonika)})
+({(Abhishek)})
+({(Viral)})
+({(Vidhi)})
+({(Snatosh)})
+({(Ajay)})
+({(Rahul)})
+({(Parul)})
+
+4.
+grp = GROUP db all; 
+ssum = FOREACH grp GENERATE SUM(db.marks);
+(847)
+
+ssum = FOREACH grp GENERATE (db.name), SUM(db.marks);
+DUMP ssum;
+({(Arti),(Pooja),(Sonika),(Abhishek),(Viral),(Vidhi),(Snatosh),(Ajay),(Rahul),(Parul)},847)
+
+grp = GROUP db BY name;
+ssum = FOREACH grp GENERATE (db.name), SUM(db.marks);
+({(Ajay)},65)
+({(Arti)},93)
+({(Parul)},81)
+({(Pooja)},92)
+({(Rahul)},79)
+({(Vidhi)},75)
+({(Viral)},99)
+({(Sonika)},85)
+({(Snatosh)},88)
+({(Abhishek)},90)
+
+5.
+grp = GROUP db ALL;
+smax = FOREACH grp GENERATE MAX(db.marks);
+DUMP smax;
+(99)
+
+grp = GROUP db BY name;                                
+smax = FOREACH grp GENERATE  MAX(db.marks);
+DUMP smax;
+(65)
+(93)
+(81)
+(92)
+(79)
+(75)
+(99)
+(85)
+(88)
+(90)
+
+6.
+grp = GROUP db ALL;
+smin = FOREACH grp GENERATE MIN(db.marks);
+DUMP smin;
+(65)
+
+grp = GROUP db BY name;                                
+smin = FOREACH grp GENERATE  MIN(db.marks);
+DUMP smin;
+(65)
+(93)
+(81)
+(92)
+(79)
+(75)
+(99)
+(85)
+(88)
+(90)
+
+7. 
+limitdata = LIMIT db 5;
+dump limitdata;
+(Arti,Mehta,93,100,F,30,MCA)
+(Pooja,Jhaveri,92,100,F,28,MBA)
+(Viral,Mehta,99,100,M,30,M.Tech)
+(Sonika,Jain,85,100,F,33,CA)
+(Abhishek,Jain,90,100,M,31,B.Tech)
+
+8.
+STORE db INTO '/home/acadgild/Assignment-session8/output/' USING PigStorage(',');
+
+9. Distinct removes the duplicate Tuples.
+dist = DISTINCT db; 
+DUMP db;
+(Ajay,Kaushik,65,100,M,33,CA)
+(Arti,Mehta,93,100,F,30,MCA)
+(Parul,Joshi,81,100,F,30,M.Tech)
+(Pooja,Jhaveri,92,100,F,28,MBA)
+(Rahul,Chauhan,79,100,M,31,B.Tech)
+(Vidhi,Mehta,75,100,F,30,MCA)
+(Viral,Mehta,99,100,M,30,M.Tech)
+(Sonika,Jain,85,100,F,33,CA)
+(Snatosh,Gosh,88,100,M,28,MBA)
+(Abhishek,Jain,90,100,M,31,B.Tech)
+
+10. Flatten
+X = FOREACH db GENERATE  FLATTEN(name);
+Dump X;
+
+(Arti)
+(Pooja)
+(Sonika)
+(Abhishek)
+(Viral)
+(Vidhi)
+(Snatosh)
+(Ajay)
+(Rahul)
+(Parul)
+
+
+11.IsEmpty
+data = COGROUP db BY name;
+emptydata = FILTER data by IsEmpty(db);
+dump emptydata;
+
+Nothing will come as output because there is no empty data in out file.
+
+
